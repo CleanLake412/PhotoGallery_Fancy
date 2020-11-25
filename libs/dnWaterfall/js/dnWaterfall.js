@@ -31,6 +31,7 @@
         this.scrolltop = 0;
         this.defalutCol= 0 ;
         this.api       = [ "init", "destroy" ];
+        this.imageTitles = {};
         this.init();
 
         $(window).on('resize', function(event) {
@@ -45,10 +46,10 @@
           self.showIMG()
         });
 
-        $(this.container.find(".waterfall-area")).on("click",function(){
-          let src = $(this).find('img.waterfall-pic').attr('src');
-          self.slide(src);
-        });
+        //$(this.container.find(".waterfall-area")).on("click",function(){
+        //  let src = $(this).find('img.waterfall-pic').attr('src');
+        //  self.slide(src);
+        //});
 
         return this ;
     };
@@ -79,7 +80,10 @@
         getImgItems : function(){
           let _this_ = this  ,
               IMG  = this.container.find('img.waterfall-img').map(function(index, elem) {
-                return elem.getAttribute("lazy-src");
+                let imgURL = elem.getAttribute("lazy-src");
+                let imgTitle = elem.getAttribute("title");
+                _this_.imageTitles[imgURL] = imgTitle;
+                return imgURL;
               }) ;
               return this.filterImgItem(IMG)
         },
@@ -102,11 +106,13 @@
                 
                   let src   = _this_.container.hasClass('done') ? imgArr[i][index] : '' ;
                   let statu = _this_.container.hasClass('done') ? 'done' : 'hidden' ;
+                  let title = _this_.imageTitles[imgArr[i][index]] ? _this_.imageTitles[imgArr[i][index]] : '無題';
 
                   let html = `<div class="waterfall-area">
                                 <a class="waterfall-link" href="javascript:void(0)">
                                   <img lazy-src="${imgArr[i][index]}" class="waterfall-pic ${statu}" src="${src}"></img>
                                 </a>
+                                <span class="caption simple-caption">${title}</span>
                               </div>`;
 
                   _this_.column.eq(i).append(html);
