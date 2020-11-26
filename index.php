@@ -2,12 +2,18 @@
 
 // config
 $imageDir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'images';
-$mainImgFileName = '00.jpg';
+$coverImgFileName = '00.jpg';
 $txtFileName = 'title.txt';
 $coverListFile = $imageDir . DIRECTORY_SEPARATOR . 'covers.json';
 
 // cover image list
-$covers = array();
+$covers = array(
+    //[
+    //  'image' => '', // Cover image url without filename
+    //  'title' => '', // one line text
+    //  'count' => 0,  // number of photo files
+    //], ...
+);
 
 // check modified time of cover list file
 $lastUpdated = is_file($coverListFile) ? filemtime($coverListFile) : 0;
@@ -21,7 +27,7 @@ if (time() - $lastUpdated > 3600) { // elapsed 1 hour ~
 
         // validate directory
         $fullPath = $imageDir . DIRECTORY_SEPARATOR . $item;
-        $imgFilePath = $fullPath . DIRECTORY_SEPARATOR . $mainImgFileName;
+        $imgFilePath = $fullPath . DIRECTORY_SEPARATOR . $coverImgFileName;
         $titleFilePath = $fullPath . DIRECTORY_SEPARATOR . $txtFileName;
         if (!is_dir($fullPath)
             || !is_file($imgFilePath)
@@ -32,10 +38,12 @@ if (time() - $lastUpdated > 3600) { // elapsed 1 hour ~
 
         // read title text
         $title = file_get_contents($titleFilePath);
+        $count = count(glob($fullPath . DIRECTORY_SEPARATOR . '*.jpg'));
 
         $covers[] = array(
-            'image' => 'images/' . $item . '/' . $mainImgFileName,
-            'title' => $title
+            'image'   => 'images/' . $item . '/' . $coverImgFileName,
+            'title' => $title,
+            'count' => $count
         );
     }
 
@@ -141,7 +149,37 @@ shuffle($covers);
 			});
 
 			$(".dnWaterfall").dnWaterfall();        
-		});
+        });
+        
+        // cover list
+        let tmpCovers = <?php echo json_encode($covers); ?>;
+        let g_covers = {};
+        for (let i = 0; i < tmpCovers.length; i++) {
+            g_covers[tmpCovers[i].image] = tmpCovers[i];
+        }
+
+        // Slideshow with photos in selected directory
+        function startSlideShow(coverImg) {
+            if (!g_covers[coverImg]) {
+                return;
+            }
+            let coverInfo = g_covers[coverImg]; // image, title, count
+            let baseUrl = coverImg.substr(0, coverImg.length - 6); // 00.jpg
+
+            // build photo list
+            let photos = [], photoFileName;
+            for (let i = 0; i < coverInfo.count; i++) {
+                photoFileName = baseUrl + (i > 9 ? i : "0" + i) + ".jpg";
+                photos.push({
+                    src: photoFileName
+                });
+            }
+
+            $.fancybox.destroy();
+            $.fancybox.open(photos, {
+                loop : true
+            });
+        }
 	</script>
 </body>
 </html>

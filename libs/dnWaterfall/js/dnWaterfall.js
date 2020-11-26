@@ -31,7 +31,6 @@
         this.scrolltop = 0;
         this.defalutCol= 0 ;
         this.api       = [ "init", "destroy" ];
-        this.imageTitles = {};
         this.init();
 
         $(window).on('resize', function(event) {
@@ -46,10 +45,11 @@
           self.showIMG()
         });
 
-        //$(this.container.find(".waterfall-area")).on("click",function(){
-        //  let src = $(this).find('img.waterfall-pic').attr('src');
-        //  self.slide(src);
-        //});
+        $(this.container.find(".waterfall-area")).on("click",function(){
+          let src = $(this).find('img.waterfall-pic').attr('src');
+          startSlideShow(src);
+          //self.slide(src);
+        });
 
         return this ;
     };
@@ -80,10 +80,7 @@
         getImgItems : function(){
           let _this_ = this  ,
               IMG  = this.container.find('img.waterfall-img').map(function(index, elem) {
-                let imgURL = elem.getAttribute("lazy-src");
-                let imgTitle = elem.getAttribute("title");
-                _this_.imageTitles[imgURL] = imgTitle;
-                return imgURL;
+                return elem.getAttribute("lazy-src");
               }) ;
               return this.filterImgItem(IMG)
         },
@@ -106,7 +103,7 @@
                 
                   let src   = _this_.container.hasClass('done') ? imgArr[i][index] : '' ;
                   let statu = _this_.container.hasClass('done') ? 'done' : 'hidden' ;
-                  let title = _this_.imageTitles[imgArr[i][index]] ? _this_.imageTitles[imgArr[i][index]] : '無題';
+                  let title = g_covers[imgArr[i][index]] ? g_covers[imgArr[i][index]].title : '無題';
 
                   let html = `<div class="waterfall-area">
                                 <a class="waterfall-link" href="javascript:void(0)">
